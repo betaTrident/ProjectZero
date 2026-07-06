@@ -23,9 +23,11 @@ export default async function PaymentPage({ params }: PaymentPageProps) {
     .eq("id", paymentRequestId)
     .maybeSingle();
 
-  if (!paymentRequest || !["pending", "paid"].includes(paymentRequest.status)) {
+  if (!paymentRequest || (paymentRequest.status !== "pending" && paymentRequest.status !== "paid")) {
     notFound();
   }
+
+  const payableStatus: "pending" | "paid" = paymentRequest.status;
 
   const { data: merchant } = await supabase
     .from("merchants")
@@ -43,7 +45,7 @@ export default async function PaymentPage({ params }: PaymentPageProps) {
         amount: String(paymentRequest.amount),
         asset_code: paymentRequest.asset_code,
         asset_issuer: paymentRequest.asset_issuer,
-        status: paymentRequest.status,
+        status: payableStatus,
         expires_at: paymentRequest.expires_at,
         memo: paymentRequest.memo,
         stellar_destination: paymentRequest.stellar_destination,
