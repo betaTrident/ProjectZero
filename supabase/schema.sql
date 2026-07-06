@@ -2,6 +2,7 @@
 -- Run this before supabase/rls.sql.
 
 create extension if not exists pgcrypto;
+create extension if not exists pg_cron with schema extensions;
 
 create or replace function public.set_updated_at()
 returns trigger
@@ -111,6 +112,9 @@ create index if not exists payment_requests_public_lookup_idx
   on public.payment_requests(id, status)
   where status in ('pending', 'paid');
 create index if not exists payment_requests_memo_idx on public.payment_requests(memo);
+create index if not exists payment_requests_pending_expiry_idx
+  on public.payment_requests(expires_at)
+  where status = 'pending' and expires_at is not null;
 create index if not exists transactions_merchant_created_idx on public.transactions(merchant_id, created_at desc);
 create index if not exists receipts_merchant_created_idx on public.receipts(merchant_id, created_at desc);
 
