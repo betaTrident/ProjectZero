@@ -36,4 +36,23 @@ describe("buildPaymentXDR", () => {
       expect(op.destination).toBe(base.destination);
     }
   });
+
+  it("builds valid XDR for a credit asset with issuer", () => {
+    const assetIssuer = "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5";
+    const xdr = buildPaymentXDR({
+      ...base,
+      amount: "5.0000000",
+      assetCode: "USDC",
+      assetIssuer,
+      memo: "test-credit",
+    });
+    const tx = new Transaction(xdr, Networks.TESTNET);
+    const op = tx.operations[0];
+
+    expect(op.type).toBe("payment");
+    if (op.type === "payment") {
+      expect(op.asset.code).toBe("USDC");
+      expect(op.asset.issuer).toBe(assetIssuer);
+    }
+  });
 });
