@@ -13,8 +13,12 @@ vi.mock("@/lib/supabase/server", () => ({
   })),
 }));
 
-function statusRequest(id: string) {
-  return new NextRequest(`https://zero.test/api/stellar/status?id=${id}`);
+function statusRequest(id: string, ip = "203.0.113.10") {
+  return new NextRequest(`https://zero.test/api/stellar/status?id=${id}`, {
+    headers: {
+      "x-forwarded-for": ip,
+    },
+  });
 }
 
 describe("GET /api/stellar/status", () => {
@@ -46,5 +50,15 @@ describe("GET /api/stellar/status", () => {
     const response = await GET(statusRequest("request-2"));
 
     expect(response.status).toBe(200);
+  });
+
+  it("does not let one client rate-limit another client for the same payment request", async () => {
+    const { GET } = await import("./route");
+
+    const first = await GET(statusRequest("request-3", "203.0.113.10"));
+    const second = await GET(statusRequest("request-3", "203.0.113.11"));
+
+    expect(first.status).toBe(200);
+    expect(second.status).toBe(200);
   });
 });

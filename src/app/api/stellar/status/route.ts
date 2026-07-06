@@ -16,11 +16,12 @@ export async function GET(request: NextRequest) {
   const now = Date.now();
   pruneRateMap(now);
 
-  const lastRequest = rateMap.get(paymentRequestId) ?? 0;
+  const rateLimitKey = `${paymentRequestId}:${getClientFingerprint(request)}`;
+  const lastRequest = rateMap.get(rateLimitKey) ?? 0;
   if (now - lastRequest < RATE_LIMIT_MS) {
     return NextResponse.json({ error: "rate limited" }, { status: 429 });
   }
-  rateMap.set(paymentRequestId, now);
+  rateMap.set(rateLimitKey, now);
 
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -42,9 +43,14 @@ export async function GET(request: NextRequest) {
 }
 
 function pruneRateMap(now: number) {
-  for (const [paymentRequestId, lastRequest] of rateMap.entries()) {
+  for (const [rateLimitKey, lastRequest] of rateMap.entries()) {
     if (now - lastRequest >= RATE_LIMIT_MS) {
-      rateMap.delete(paymentRequestId);
+      rateMap.delete(rateLimitKey);
     }
   }
+}
+
+function getClientFingerprint(request: NextRequest) {
+  const forwardedFor = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+  return forwardedFor || request.headers.get("x-real-ip") || "local";
 }
