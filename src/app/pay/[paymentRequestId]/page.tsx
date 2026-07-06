@@ -18,12 +18,12 @@ export default async function PaymentPage({ params }: PaymentPageProps) {
   const { data: paymentRequest } = await supabase
     .from("payment_requests")
     .select(
-      "id, merchant_id, title, description, amount, asset_code, status, memo, stellar_destination, expires_at",
+      "id, merchant_id, title, description, amount, asset_code, asset_issuer, status, memo, stellar_destination, expires_at",
     )
     .eq("id", paymentRequestId)
     .maybeSingle();
 
-  if (!paymentRequest) {
+  if (!paymentRequest || !["pending", "paid"].includes(paymentRequest.status)) {
     notFound();
   }
 
@@ -36,14 +36,18 @@ export default async function PaymentPage({ params }: PaymentPageProps) {
   return (
     <PaymentRequestCard
       merchantName={merchant?.business_name ?? "Project ZERO merchant"}
-      title={paymentRequest.title}
-      description={paymentRequest.description}
-      amount={Number(paymentRequest.amount)}
-      assetCode={paymentRequest.asset_code}
-      status={paymentRequest.status}
-      expiresAt={paymentRequest.expires_at}
-      memo={paymentRequest.memo}
-      stellarDestination={paymentRequest.stellar_destination}
+      paymentRequest={{
+        id: paymentRequest.id,
+        title: paymentRequest.title,
+        description: paymentRequest.description,
+        amount: String(paymentRequest.amount),
+        asset_code: paymentRequest.asset_code,
+        asset_issuer: paymentRequest.asset_issuer,
+        status: paymentRequest.status,
+        expires_at: paymentRequest.expires_at,
+        memo: paymentRequest.memo,
+        stellar_destination: paymentRequest.stellar_destination,
+      }}
       paymentLink={buildPaymentLink(
         process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
         paymentRequest.id,
