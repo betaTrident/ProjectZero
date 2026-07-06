@@ -175,8 +175,15 @@ export function PaymentRequestCard({
             ) : null}
             {status === "error" ? (
               <div role="alert" className="rounded-md border border-destructive/30 px-3 py-2 text-sm">
-                <p className="font-medium">Payment could not be completed.</p>
-                {errorMsg ? <p className="mt-1 text-muted-foreground">{errorMsg}</p> : null}
+                <p className="font-medium">Payment could not be verified.</p>
+                {errorMsg ? (
+                  <p className="mt-1 text-muted-foreground">
+                    Reason: <code>{errorMsg}</code>
+                  </p>
+                ) : null}
+                <p className="mt-1 text-muted-foreground">
+                  Your funds have not been moved if signing was rejected.
+                </p>
               </div>
             ) : null}
             {isBusy ? (
