@@ -1,0 +1,39 @@
+import { describe, expect, it } from "vitest";
+import { Networks, Transaction } from "@stellar/stellar-sdk";
+
+import { buildPaymentXDR } from "./build-payment";
+
+describe("buildPaymentXDR", () => {
+  const base = {
+    destination: "GC5BBFZZOJT55A66YR7RIH2XVIVQQGSZT5KJSUKRW326BWHOOBSKWVH4",
+    amount: "10.0000000",
+    assetCode: "XLM",
+    assetIssuer: null,
+    memo: "test-memo-123",
+    networkPassphrase: Networks.TESTNET,
+  };
+
+  it("produces XDR decodable by stellar-sdk", () => {
+    const xdr = buildPaymentXDR(base);
+
+    expect(() => new Transaction(xdr, Networks.TESTNET)).not.toThrow();
+  });
+
+  it("embeds the correct memo text", () => {
+    const xdr = buildPaymentXDR(base);
+    const tx = new Transaction(xdr, Networks.TESTNET);
+
+    expect(tx.memo.value?.toString()).toBe("test-memo-123");
+  });
+
+  it("targets the correct destination", () => {
+    const xdr = buildPaymentXDR(base);
+    const tx = new Transaction(xdr, Networks.TESTNET);
+    const op = tx.operations[0];
+
+    expect(op.type).toBe("payment");
+    if (op.type === "payment") {
+      expect(op.destination).toBe(base.destination);
+    }
+  });
+});
