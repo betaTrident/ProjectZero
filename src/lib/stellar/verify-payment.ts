@@ -36,7 +36,7 @@ export async function verifyPaymentByHash(
   ) as HorizonPaymentRecord | undefined;
 
   if (!payment) {
-    return { ok: false, reason: "no payment operation found" };
+    return { ok: false, reason: "no payment operation in transaction" };
   }
 
   if (payment.to !== expected.destination) {

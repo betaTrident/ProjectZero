@@ -16,9 +16,18 @@ export type PaymentParams = {
   networkPassphrase: string;
 };
 
-// Returns a base64-encoded XDR ready for Freighter `signTransaction`.
+/**
+ * Builds an unsigned XDR transaction ready for Freighter `signTransaction`.
+ * Asset: pass assetCode="XLM" and assetIssuer=null for native lumens.
+ *        pass assetCode="USDC" and assetIssuer=<issuer G-key> for credit assets.
+ * Memo: treated as a public correlation key; do not include private data.
+ */
 export function buildPaymentXDR(params: PaymentParams): string {
   const { destination, amount, assetCode, assetIssuer, memo, networkPassphrase } = params;
+  if (memo.length > 28) {
+    throw new Error(`Memo exceeds 28-character MEMO_TEXT limit: ${memo.length} characters`);
+  }
+
   const asset =
     assetCode === "XLM" ? Asset.native() : new Asset(assetCode, requireAssetIssuer(assetIssuer));
   const source = new Account(destination, "0");
