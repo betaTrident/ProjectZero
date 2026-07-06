@@ -52,7 +52,7 @@ export function buildPaymentXDR(params: PaymentParams): string {
 
 // Returns a SEP-7 web+stellar: URI for non-Freighter wallet deeplinks.
 export function buildSep7Uri(params: PaymentParams & { payLink: string }): string {
-  const { destination, amount, assetCode, assetIssuer, memo, payLink } = params;
+  const { destination, amount, assetCode, assetIssuer, memo, networkPassphrase, payLink } = params;
   const url = new URL("web+stellar:pay");
 
   url.searchParams.set("destination", destination);
@@ -63,6 +63,7 @@ export function buildSep7Uri(params: PaymentParams & { payLink: string }): strin
   }
   url.searchParams.set("memo", memo);
   url.searchParams.set("memo_type", "MEMO_TEXT");
+  url.searchParams.set("network_passphrase", networkPassphrase);
   url.searchParams.set("callback", `url:${payLink}`);
 
   return url.toString();
