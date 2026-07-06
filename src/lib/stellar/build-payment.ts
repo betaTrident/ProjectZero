@@ -1,23 +1,20 @@
-import {
-  DEFAULT_ASSET_CODE,
-  STELLAR_TESTNET_NETWORK,
-  STELLAR_TESTNET_PASSPHRASE,
-} from "@/constants/stellar";
-
-export type BuildPaymentInput = {
+export type PaymentParams = {
   destination: string;
   amount: string;
-  assetCode?: string;
+  assetCode: string;
+  assetIssuer: string | null;
   memo: string;
+  networkPassphrase: string;
 };
 
-export function describeTestnetPayment(input: BuildPaymentInput) {
-  return {
-    network: STELLAR_TESTNET_NETWORK,
-    networkPassphrase: STELLAR_TESTNET_PASSPHRASE,
-    assetCode: input.assetCode ?? DEFAULT_ASSET_CODE,
-    destination: input.destination,
-    amount: input.amount,
-    memo: input.memo,
-  };
+// Returns a base64-encoded XDR ready for Freighter `signTransaction`.
+export function buildPaymentXDR(params: PaymentParams): string {
+  void params;
+  throw new Error("not implemented");
+}
+
+// Returns a SEP-7 web+stellar: URI for non-Freighter wallet deeplinks.
+export function buildSep7Uri(params: PaymentParams & { payLink: string }): string {
+  void params;
+  throw new Error("not implemented");
 }

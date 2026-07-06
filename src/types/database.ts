@@ -6,6 +6,20 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[];
 
+export type PaymentRequest = {
+  id: string;
+  merchant_id: string;
+  stellar_destination: string;
+  amount: string;
+  asset_code: string;
+  asset_issuer: string | null;
+  memo: string;
+  status: "pending" | "paid" | "expired";
+  expires_at: string;
+  paid_at: string | null;
+  created_at: string;
+};
+
 type Table<Row, Insert = Row, Update = Partial<Insert>> = {
   Row: Row;
   Insert: Insert;

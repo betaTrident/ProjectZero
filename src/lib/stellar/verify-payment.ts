@@ -1,10 +1,18 @@
-export type VerifyPaymentResult =
-  | { ok: true; transactionHash: string }
-  | { ok: false; reason: string };
+export type VerifyExpected = {
+  memo: string;
+  destination: string;
+  amount: string;
+  assetCode: string;
+  assetIssuer: string | null;
+};
 
-export async function verifyPaymentByHash(): Promise<VerifyPaymentResult> {
-  return {
-    ok: false,
-    reason: "Stellar server-side verification is implemented in Phase 3.",
-  };
+export type VerifyResult = { ok: boolean; reason?: string };
+
+export async function verifyPaymentByHash(
+  hash: string,
+  expected: VerifyExpected,
+): Promise<VerifyResult> {
+  void hash;
+  void expected;
+  throw new Error("not implemented");
 }
