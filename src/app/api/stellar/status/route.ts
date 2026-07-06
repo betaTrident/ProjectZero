@@ -3,10 +3,11 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET(request: NextRequest) {
-  const paymentRequestId = request.nextUrl.searchParams.get("payment_request_id");
+  const paymentRequestId =
+    request.nextUrl.searchParams.get("id") ?? request.nextUrl.searchParams.get("payment_request_id");
 
   if (!paymentRequestId) {
-    return NextResponse.json({ error: "payment_request_id is required" }, { status: 400 });
+    return NextResponse.json({ error: "id is required" }, { status: 400 });
   }
 
   const supabase = await createClient();

@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { MerchantOnboardingForm } from "@/components/dashboard/merchant-onboarding-form";
-import { Badge } from "@/components/ui/badge";
+import { PaymentStatusBadge } from "@/components/dashboard/payment-status-badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { buildPaymentLink } from "@/lib/payments/payment-request";
@@ -106,9 +106,7 @@ export default async function DashboardPage() {
                     {buildPaymentLink(appUrl, request.id)}
                   </p>
                 </div>
-                <Badge variant={request.status === "paid" ? "default" : "secondary"}>
-                  {request.status}
-                </Badge>
+                <PaymentStatusBadge paymentRequestId={request.id} initialStatus={request.status} />
               </div>
             ))
           ) : (
