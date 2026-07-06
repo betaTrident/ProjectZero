@@ -92,4 +92,19 @@ describe("verifyPaymentByHash", () => {
       }),
     ).resolves.toEqual({ ok: false, reason: "asset" });
   });
+
+  it("returns a clear reason when the transaction has no payment operation", async () => {
+    mockPaymentsCall.mockResolvedValue({
+      records: [
+        {
+          type: "manage_data",
+        },
+      ],
+    });
+
+    await expect(verifyPaymentByHash("a".repeat(64), expected)).resolves.toEqual({
+      ok: false,
+      reason: "no payment operation in transaction",
+    });
+  });
 });

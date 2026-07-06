@@ -55,4 +55,13 @@ describe("buildPaymentXDR", () => {
       expect(op.asset.issuer).toBe(assetIssuer);
     }
   });
+
+  it("rejects memo text longer than Stellar's 28-character limit", () => {
+    expect(() =>
+      buildPaymentXDR({
+        ...base,
+        memo: "A".repeat(29),
+      }),
+    ).toThrow("Memo exceeds 28-character MEMO_TEXT limit: 29 characters");
+  });
 });
