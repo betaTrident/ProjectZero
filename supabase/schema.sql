@@ -16,41 +16,6 @@ begin
 end;
 $$;
 
-create or replace function public.current_user_owns_merchant(p_merchant_id uuid)
-returns boolean
-language sql
-stable
-security definer
-set search_path = public
-as $$
-  select exists (
-    select 1
-    from public.merchants
-    where merchants.id = p_merchant_id
-      and merchants.user_id = (select auth.uid())
-  );
-$$;
-
-create or replace function public.has_public_payable_request_for_merchant(p_merchant_id uuid)
-returns boolean
-language sql
-stable
-security definer
-set search_path = public
-as $$
-  select exists (
-    select 1
-    from public.payment_requests
-    where payment_requests.merchant_id = p_merchant_id
-      and payment_requests.status in ('pending', 'paid')
-      and (
-        payment_requests.expires_at is null
-        or payment_requests.expires_at > now()
-        or payment_requests.status = 'paid'
-      )
-  );
-$$;
-
 create table if not exists public.merchants (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
@@ -123,6 +88,41 @@ create table if not exists public.receipts (
   receipt_number text not null unique,
   created_at timestamptz not null default now()
 );
+
+create or replace function public.current_user_owns_merchant(p_merchant_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.merchants
+    where merchants.id = p_merchant_id
+      and merchants.user_id = (select auth.uid())
+  );
+$$;
+
+create or replace function public.has_public_payable_request_for_merchant(p_merchant_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.payment_requests
+    where payment_requests.merchant_id = p_merchant_id
+      and payment_requests.status in ('pending', 'paid')
+      and (
+        payment_requests.expires_at is null
+        or payment_requests.expires_at > now()
+        or payment_requests.status = 'paid'
+      )
+  );
+$$;
 
 drop trigger if exists set_merchants_updated_at on public.merchants;
 create trigger set_merchants_updated_at
