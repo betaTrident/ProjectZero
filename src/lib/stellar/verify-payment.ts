@@ -1,3 +1,5 @@
+import { getStellarServer } from "./client";
+
 export type VerifyExpected = {
   memo: string;
   destination: string;
@@ -14,5 +16,7 @@ export async function verifyPaymentByHash(
 ): Promise<VerifyResult> {
   void hash;
   void expected;
-  throw new Error("not implemented");
+  void getStellarServer;
+
+  return { ok: false, reason: "verify pending Phase 2" };
 }
