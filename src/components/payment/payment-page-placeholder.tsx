@@ -23,8 +23,7 @@ export function PaymentPagePlaceholder({
               {paymentRequestId}
             </p>
             <p className="text-sm text-muted-foreground">
-              Public payment request loading, QR details, and Stellar wallet
-              payment are implemented in later phases.
+              Loading the public payment request and wallet options.
             </p>
           </CardContent>
         </Card>
