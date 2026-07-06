@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getNetwork, isConnected, requestAccess, signTransaction } from "@stellar/freighter-api";
 import { TransactionBuilder } from "@stellar/stellar-sdk";
 import QRCode from "react-qr-code";
@@ -16,7 +16,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { STELLAR_TESTNET_PASSPHRASE } from "@/constants/stellar";
-import { buildPaymentXDR } from "@/lib/stellar/build-payment";
+import { buildPaymentXDR, buildSep7Uri } from "@/lib/stellar/build-payment";
 
 type PaymentRequestCardProps = {
   merchantName: string;
@@ -46,8 +46,42 @@ export function PaymentRequestCard({
     paymentRequest.status === "paid" ? "paid" : "idle",
   );
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [freighterAvailable, setFreighterAvailable] = useState<boolean | null>(null);
   const isBusy = ["connecting", "signing", "submitting", "verifying"].includes(status);
   const canPay = paymentRequest.status === "pending" && status !== "paid";
+  const sep7Uri = useMemo(
+    () =>
+      buildSep7Uri({
+        destination: paymentRequest.stellar_destination,
+        amount: paymentRequest.amount,
+        assetCode: paymentRequest.asset_code,
+        assetIssuer: paymentRequest.asset_issuer,
+        memo: paymentRequest.memo,
+        networkPassphrase: STELLAR_TESTNET_PASSPHRASE,
+        payLink: paymentLink,
+      }),
+    [paymentLink, paymentRequest],
+  );
+
+  useEffect(() => {
+    let mounted = true;
+
+    isConnected()
+      .then((connected) => {
+        if (mounted) {
+          setFreighterAvailable(!connected.error && connected.isConnected);
+        }
+      })
+      .catch(() => {
+        if (mounted) {
+          setFreighterAvailable(false);
+        }
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   async function handlePay() {
     if (!canPay || isBusy) {
@@ -207,6 +241,20 @@ export function PaymentRequestCard({
             <CopyPaymentLink paymentLink={paymentLink} />
           </CardContent>
         </Card>
+        {freighterAvailable === false ? (
+          <Card className="md:col-start-2">
+            <CardHeader>
+              <CardTitle>Wallet QR</CardTitle>
+              <CardDescription>SEP-7 compatible payment request.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="rounded-lg bg-white p-4">
+                <QRCode value={sep7Uri} className="h-auto w-full" />
+              </div>
+              <p className="break-all font-mono text-xs text-muted-foreground">{sep7Uri}</p>
+            </CardContent>
+          </Card>
+        ) : null}
       </div>
     </main>
   );
