@@ -1,12 +1,3 @@
--- Project ZERO Row Level Security policies
--- Run after supabase/schema.sql.
-
-alter table public.merchants enable row level security;
-alter table public.products enable row level security;
-alter table public.payment_requests enable row level security;
-alter table public.transactions enable row level security;
-alter table public.receipts enable row level security;
-
 create or replace function public.current_user_owns_merchant(p_merchant_id uuid)
 returns boolean
 language sql
@@ -48,28 +39,6 @@ grant execute on function public.current_user_owns_merchant(uuid) to authenticat
 revoke all on function public.has_public_payable_request_for_merchant(uuid) from public;
 grant execute on function public.has_public_payable_request_for_merchant(uuid) to anon, authenticated;
 
-drop policy if exists "merchants_select_own" on public.merchants;
-create policy "merchants_select_own"
-on public.merchants
-for select
-to authenticated
-using ((select auth.uid()) = user_id);
-
-drop policy if exists "merchants_insert_own" on public.merchants;
-create policy "merchants_insert_own"
-on public.merchants
-for insert
-to authenticated
-with check ((select auth.uid()) = user_id);
-
-drop policy if exists "merchants_update_own" on public.merchants;
-create policy "merchants_update_own"
-on public.merchants
-for update
-to authenticated
-using ((select auth.uid()) = user_id)
-with check ((select auth.uid()) = user_id);
-
 drop policy if exists "products_crud_own" on public.products;
 create policy "products_crud_own"
 on public.products
@@ -104,18 +73,5 @@ drop policy if exists "public_select_payment_request_merchant_name" on public.me
 create policy "public_select_payment_request_merchant_name"
 on public.merchants
 for select
-to anon
+to anon, authenticated
 using (public.has_public_payable_request_for_merchant(merchants.id));
-
-drop policy if exists "public_select_payable_payment_requests" on public.payment_requests;
-create policy "public_select_payable_payment_requests"
-on public.payment_requests
-for select
-to anon
-using (
-  status in ('pending', 'paid')
-  and (expires_at is null or expires_at > now() or status = 'paid')
-);
-
--- No anon insert/update/delete policies exist. Payment status changes are reserved
--- for server-side service-role verification in Phase 3.
