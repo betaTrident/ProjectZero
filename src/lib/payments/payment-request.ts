@@ -45,3 +45,14 @@ export function canMarkPaymentRequestPaid(
 
   return new Date(paymentRequest.expiresAt) > now;
 }
+
+export function canExpirePaymentRequest(
+  paymentRequest: PayablePaymentRequest,
+  now = new Date(),
+) {
+  return (
+    paymentRequest.status === "pending" &&
+    paymentRequest.expiresAt !== null &&
+    new Date(paymentRequest.expiresAt) < now
+  );
+}
