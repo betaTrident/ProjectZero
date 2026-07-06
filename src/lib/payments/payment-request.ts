@@ -1,3 +1,5 @@
+import { randomBytes } from "node:crypto";
+
 import type { PaymentRequestStatus } from "@/types/payment";
 
 type PayablePaymentRequest = {
@@ -11,9 +13,22 @@ export function buildPaymentLink(appUrl: string, paymentRequestId: string) {
 
 export function createPaymentMemo(paymentRequestId: string) {
   const prefix = paymentRequestId.replace(/-/g, "").slice(0, 8).toUpperCase();
-  const entropy = Math.random().toString(36).slice(2, 8).toUpperCase().padEnd(6, "0");
+  const entropy = randomBytes(4).toString("hex").slice(0, 6).toUpperCase();
 
   return `ZERO-${prefix}-${entropy}`;
+}
+
+export function resolvePaymentDestination(
+  merchantStellarPublicKey: string | null,
+  fallbackStellarPublicKey: string | undefined,
+) {
+  const destination = merchantStellarPublicKey ?? fallbackStellarPublicKey;
+
+  if (!destination) {
+    throw new Error("Merchant Stellar destination is not configured.");
+  }
+
+  return destination;
 }
 
 export function canMarkPaymentRequestPaid(

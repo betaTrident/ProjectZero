@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
   buildPaymentLink,
@@ -11,6 +11,15 @@ describe("payment request helpers", () => {
     expect(createPaymentMemo("12345678-1234-1234-1234-123456789abc")).toMatch(
       /^ZERO-12345678-[A-Z0-9]{6}$/,
     );
+  });
+
+  it("does not use Math.random for memo entropy", () => {
+    const randomSpy = vi.spyOn(Math, "random");
+
+    createPaymentMemo("12345678-1234-1234-1234-123456789abc");
+
+    expect(randomSpy).not.toHaveBeenCalled();
+    randomSpy.mockRestore();
   });
 
   it("builds shareable app links without trailing slash duplication", () => {

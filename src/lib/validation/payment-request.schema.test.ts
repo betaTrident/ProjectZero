@@ -7,7 +7,6 @@ describe("paymentRequestSchema", () => {
     const parsed = paymentRequestSchema.parse({
       title: " Market invoice ",
       amount: "12.50",
-      stellarDestination: "G".repeat(56),
     });
 
     expect(parsed.title).toBe("Market invoice");
@@ -15,13 +14,13 @@ describe("paymentRequestSchema", () => {
     expect(parsed.assetCode).toBe("XLM");
   });
 
-  it("rejects invalid Stellar public keys", () => {
-    const parsed = paymentRequestSchema.safeParse({
+  it("ignores client-supplied Stellar destinations", () => {
+    const parsed = paymentRequestSchema.parse({
       title: "Market invoice",
       amount: "12.50",
       stellarDestination: "not-a-key",
-    });
+    } as unknown);
 
-    expect(parsed.success).toBe(false);
+    expect("stellarDestination" in parsed).toBe(false);
   });
 });

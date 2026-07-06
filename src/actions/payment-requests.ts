@@ -5,7 +5,7 @@ import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { createPaymentMemo } from "@/lib/payments/payment-request";
+import { createPaymentMemo, resolvePaymentDestination } from "@/lib/payments/payment-request";
 import { createClient } from "@/lib/supabase/server";
 import { paymentRequestSchema } from "@/lib/validation/payment-request.schema";
 
@@ -38,17 +38,12 @@ async function requireMerchantId() {
 }
 
 export async function createPaymentRequest(formData: FormData) {
-  const fallbackDestination =
-    formValue(formData, "stellarDestination") ||
-    process.env.PROJECT_ZERO_TREASURY_PUBLIC_KEY ||
-    "";
-
   const parsed = paymentRequestSchema.safeParse({
     title: formValue(formData, "title"),
     description: formValue(formData, "description"),
     amount: formValue(formData, "amount"),
     assetCode: formValue(formData, "assetCode") || "XLM",
-    stellarDestination: fallbackDestination,
+    assetIssuer: formValue(formData, "assetIssuer") || undefined,
     productId: formValue(formData, "productId") || undefined,
     expiresAt: formValue(formData, "expiresAt")
       ? new Date(formValue(formData, "expiresAt")).toISOString()
@@ -61,6 +56,16 @@ export async function createPaymentRequest(formData: FormData) {
 
   const { supabase, merchant } = await requireMerchantId();
   const id = randomUUID();
+  let stellarDestination: string;
+  try {
+    stellarDestination = resolvePaymentDestination(
+      merchant.stellar_public_key,
+      process.env.PROJECT_ZERO_TREASURY_PUBLIC_KEY,
+    );
+  } catch {
+    redirect("/invoices?error=stellar-destination-required");
+  }
+
   const { error } = await supabase.from("payment_requests").insert({
     id,
     merchant_id: merchant.id,
@@ -69,7 +74,8 @@ export async function createPaymentRequest(formData: FormData) {
     description: parsed.data.description ?? null,
     amount: parsed.data.amount,
     asset_code: parsed.data.assetCode,
-    stellar_destination: parsed.data.stellarDestination,
+    asset_issuer: parsed.data.assetCode === "XLM" ? null : (parsed.data.assetIssuer ?? null),
+    stellar_destination: stellarDestination,
     memo: createPaymentMemo(id),
     expires_at: parsed.data.expiresAt ?? null,
   });
