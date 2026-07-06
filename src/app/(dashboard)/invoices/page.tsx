@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { createPaymentRequest } from "@/actions/payment-requests";
-import { Badge } from "@/components/ui/badge";
+import { PaymentStatusBadge } from "@/components/dashboard/payment-status-badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -125,9 +125,7 @@ export default async function InvoicesPage() {
                       {Number(request.amount).toFixed(2)} {request.asset_code}
                     </TableCell>
                     <TableCell>
-                      <Badge variant={request.status === "paid" ? "default" : "secondary"}>
-                        {request.status}
-                      </Badge>
+                      <PaymentStatusBadge paymentRequestId={request.id} initialStatus={request.status} />
                     </TableCell>
                     <TableCell>
                       <Link
