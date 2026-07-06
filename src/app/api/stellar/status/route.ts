@@ -2,6 +2,9 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { createClient } from "@/lib/supabase/server";
 
+const rateMap = new Map<string, number>();
+const RATE_LIMIT_MS = 2_000;
+
 export async function GET(request: NextRequest) {
   const paymentRequestId =
     request.nextUrl.searchParams.get("id") ?? request.nextUrl.searchParams.get("payment_request_id");
@@ -9,6 +12,15 @@ export async function GET(request: NextRequest) {
   if (!paymentRequestId) {
     return NextResponse.json({ error: "missing id" }, { status: 400 });
   }
+
+  const now = Date.now();
+  pruneRateMap(now);
+
+  const lastRequest = rateMap.get(paymentRequestId) ?? 0;
+  if (now - lastRequest < RATE_LIMIT_MS) {
+    return NextResponse.json({ error: "rate limited" }, { status: 429 });
+  }
+  rateMap.set(paymentRequestId, now);
 
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -27,4 +39,12 @@ export async function GET(request: NextRequest) {
     paid_at: data.paid_at,
     paidAt: data.paid_at,
   });
+}
+
+function pruneRateMap(now: number) {
+  for (const [paymentRequestId, lastRequest] of rateMap.entries()) {
+    if (now - lastRequest >= RATE_LIMIT_MS) {
+      rateMap.delete(paymentRequestId);
+    }
+  }
 }
