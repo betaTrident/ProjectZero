@@ -16,6 +16,41 @@ begin
 end;
 $$;
 
+create or replace function public.current_user_owns_merchant(p_merchant_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.merchants
+    where merchants.id = p_merchant_id
+      and merchants.user_id = (select auth.uid())
+  );
+$$;
+
+create or replace function public.has_public_payable_request_for_merchant(p_merchant_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.payment_requests
+    where payment_requests.merchant_id = p_merchant_id
+      and payment_requests.status in ('pending', 'paid')
+      and (
+        payment_requests.expires_at is null
+        or payment_requests.expires_at > now()
+        or payment_requests.status = 'paid'
+      )
+  );
+$$;
+
 create table if not exists public.merchants (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
@@ -128,6 +163,12 @@ grant select on public.merchants to anon;
 grant select on public.payment_requests to anon;
 grant select, insert, update, delete on public.payment_requests to service_role;
 grant select, insert on public.transactions to service_role;
+
+revoke all on function public.current_user_owns_merchant(uuid) from public;
+grant execute on function public.current_user_owns_merchant(uuid) to authenticated;
+
+revoke all on function public.has_public_payable_request_for_merchant(uuid) from public;
+grant execute on function public.has_public_payable_request_for_merchant(uuid) to anon, authenticated;
 
 create or replace function public.mark_payment_paid(
   p_request_id uuid,
