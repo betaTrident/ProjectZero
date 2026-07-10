@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FileText, QrCode } from "lucide-react";
+import { ExternalLink, FileText, QrCode } from "lucide-react";
 import { useState } from "react";
 
 import { InvoiceQrDialog } from "@/components/dashboard/invoice-qr-dialog";
@@ -48,20 +48,21 @@ export function RecentRequestsList({ requests }: RecentRequestsListProps) {
 
   return (
     <>
-      <ul className="flex flex-col gap-3">
+      <ul className="flex flex-col divide-y divide-border/60">
         {requests.map((request) => (
           <li
             key={request.id}
-            className="flex flex-col gap-3 rounded-lg border border-border/60 p-3 sm:flex-row sm:items-center sm:justify-between"
+            className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between"
           >
             <div className="min-w-0">
               <p className="font-medium">{request.title}</p>
-              <p className="font-mono text-sm text-muted-foreground">
+              <p className="mt-1 font-mono text-sm text-muted-foreground">
                 {Number(request.amount).toFixed(2)} {request.asset_code}
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <PaymentStatusBadge paymentRequestId={request.id} initialStatus={request.status} />
+              <Link href={request.paymentLink} className={buttonVariants({ variant: "outline", size: "sm" })}><ExternalLink /> Open</Link>
               <CopyPaymentLink paymentLink={request.paymentLink} />
               <button
                 type="button"

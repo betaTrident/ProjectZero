@@ -20,12 +20,12 @@ type InvoiceQrDialogProps = {
 export function InvoiceQrDialog({ open, onOpenChange, paymentLink, title }: InvoiceQrDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="app-panel border-border bg-popover sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Share invoice</DialogTitle>
         </DialogHeader>
         <p className="text-sm text-muted-foreground">{title}</p>
-        <div className="mx-auto w-fit rounded-lg bg-background p-4">
+        <div className="mx-auto w-fit rounded-lg bg-[var(--marketing-qr-background)] p-4">
           <QRCode value={paymentLink} size={200} />
         </div>
         <CopyPaymentLink paymentLink={paymentLink} />

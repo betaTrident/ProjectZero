@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { CircleCheckBig, Clock3, Package, Plus, TimerOff } from "lucide-react";
 import { Suspense } from "react";
 
 import { MerchantOnboardingForm } from "@/components/dashboard/merchant-onboarding-form";
@@ -37,7 +38,7 @@ export default async function DashboardPage() {
 
   if (!merchant) {
     return (
-      <main className="mx-auto w-full max-w-6xl px-4 py-8 md:px-6">
+      <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         <Suspense fallback={null}>
           <QueryFeedback />
         </Suspense>
@@ -110,7 +111,7 @@ export default async function DashboardPage() {
     })) ?? [];
 
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8 md:px-6">
+    <main className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
       <Suspense fallback={null}>
         <QueryFeedback />
       </Suspense>
@@ -119,58 +120,56 @@ export default async function DashboardPage() {
         title={`Welcome back, ${merchant.business_name}`}
         description="Track invoices, share payment links, and monitor verified settlements."
         action={
-          <Link href="/invoices" className={buttonVariants()}>
-            Create invoice
+          <Link href="/invoices" className={buttonVariants({ size: "lg" })}>
+            <Plus data-icon="inline-start" /> Create invoice
           </Link>
         }
       />
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Card>
+      <section className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
+        <Card className="app-panel gap-0 py-0">
           <CardHeader>
-            <CardDescription>Pending requests</CardDescription>
-            <CardTitle className="text-3xl">{pendingCount ?? 0}</CardTitle>
+            <div className="flex items-center justify-between"><CardDescription>Pending requests</CardDescription><Clock3 className="size-4 text-warning" /></div>
+            <CardTitle className="font-mono text-3xl">{pendingCount ?? 0}</CardTitle>
           </CardHeader>
         </Card>
-        <Card>
+        <Card className="app-panel gap-0 py-0">
           <CardHeader>
-            <CardDescription>Paid requests</CardDescription>
-            <CardTitle className="text-3xl">{paidCount ?? 0}</CardTitle>
+            <div className="flex items-center justify-between"><CardDescription>Paid requests</CardDescription><CircleCheckBig className="size-4 text-primary" /></div>
+            <CardTitle className="font-mono text-3xl">{paidCount ?? 0}</CardTitle>
           </CardHeader>
         </Card>
-        <Card>
+        <Card className="app-panel gap-0 py-0">
           <CardHeader>
-            <CardDescription>Expired this month</CardDescription>
-            <CardTitle className="text-3xl">{expiredCount ?? 0}</CardTitle>
+            <div className="flex items-center justify-between"><CardDescription>Expired this month</CardDescription><TimerOff className="size-4 text-destructive" /></div>
+            <CardTitle className="font-mono text-3xl">{expiredCount ?? 0}</CardTitle>
           </CardHeader>
         </Card>
-        <Card>
+        <Card className="app-panel gap-0 py-0">
           <CardHeader>
-            <CardDescription>Active products</CardDescription>
-            <CardTitle className="text-3xl">{productCount ?? 0}</CardTitle>
+            <div className="flex items-center justify-between"><CardDescription>Active products</CardDescription><Package className="size-4 text-primary" /></div>
+            <CardTitle className="font-mono text-3xl">{productCount ?? 0}</CardTitle>
           </CardHeader>
         </Card>
       </section>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent payment requests</CardTitle>
-          <CardDescription>Share links publicly; status updates remain server-verified.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <RecentRequestsList requests={recentRequests} />
-        </CardContent>
-      </Card>
+      <section className="grid gap-4 xl:grid-cols-[1.25fr_0.75fr]">
+        <Card className="app-panel">
+          <CardHeader>
+            <CardTitle>Recent payment requests</CardTitle>
+            <CardDescription>Share links publicly; status updates remain server-verified.</CardDescription>
+          </CardHeader>
+          <CardContent><RecentRequestsList requests={recentRequests} /></CardContent>
+        </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent payments</CardTitle>
-          <CardDescription>On-chain settlements verified against your invoices.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <RecentPaymentsList transactions={transactions ?? []} />
-        </CardContent>
-      </Card>
+        <Card className="app-panel">
+          <CardHeader>
+            <CardTitle>Recent verified payments</CardTitle>
+            <CardDescription>On-chain settlements matched to your invoices.</CardDescription>
+          </CardHeader>
+          <CardContent><RecentPaymentsList transactions={transactions ?? []} /></CardContent>
+        </Card>
+      </section>
     </main>
   );
 }

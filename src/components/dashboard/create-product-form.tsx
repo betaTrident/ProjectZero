@@ -19,12 +19,12 @@ export function CreateProductForm({ idPrefix }: CreateProductFormProps) {
     <form action={createProduct} className="flex flex-col gap-4">
       <FieldGroup>
         <Field>
-          <FieldLabel htmlFor={fieldId(idPrefix, "name")}>Name</FieldLabel>
-          <Input id={fieldId(idPrefix, "name")} name="name" required />
+          <FieldLabel htmlFor={fieldId(idPrefix, "name")}>Product name</FieldLabel>
+          <Input id={fieldId(idPrefix, "name")} name="name" placeholder="e.g. Handmade tote bag" required />
         </Field>
         <Field>
-          <FieldLabel htmlFor={fieldId(idPrefix, "description")}>Description</FieldLabel>
-          <Textarea id={fieldId(idPrefix, "description")} name="description" />
+          <FieldLabel htmlFor={fieldId(idPrefix, "description")}>Description (optional)</FieldLabel>
+          <Textarea id={fieldId(idPrefix, "description")} name="description" placeholder="Describe the product" />
         </Field>
         <div className="grid grid-cols-2 gap-3">
           <Field>
@@ -51,7 +51,7 @@ export function CreateProductForm({ idPrefix }: CreateProductFormProps) {
           </Field>
         </div>
         <Field>
-          <FieldLabel htmlFor={fieldId(idPrefix, "imageUrl")}>Image URL</FieldLabel>
+          <FieldLabel htmlFor={fieldId(idPrefix, "imageUrl")}>Image URL (optional)</FieldLabel>
           <Input id={fieldId(idPrefix, "imageUrl")} name="imageUrl" type="url" placeholder="https://" />
         </Field>
       </FieldGroup>

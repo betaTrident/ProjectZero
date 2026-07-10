@@ -34,7 +34,7 @@ export function ProductsPageContent({ products }: ProductsPageContentProps) {
   const [sheetOpen, setSheetOpen] = useState(false);
 
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8 md:px-6">
+    <main className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
       <QueryFeedback />
       <PageHeader
         title="Products"
@@ -44,13 +44,13 @@ export function ProductsPageContent({ products }: ProductsPageContentProps) {
             <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
               <SheetTrigger
                 render={
-                  <Button type="button">
+                  <Button type="button" size="lg">
                     <Plus data-icon="inline-start" />
                     New product
                   </Button>
                 }
               />
-              <SheetContent side="bottom" className="max-h-[90dvh] overflow-y-auto">
+              <SheetContent side="bottom" className="max-h-[92dvh] overflow-y-auto rounded-t-2xl border-border bg-popover">
                 <SheetHeader>
                   <SheetTitle>Create product</SheetTitle>
                 </SheetHeader>
@@ -63,8 +63,8 @@ export function ProductsPageContent({ products }: ProductsPageContentProps) {
         }
       />
 
-      <div className="grid gap-6 lg:grid-cols-[360px_1fr]">
-        <Card className="hidden lg:block">
+      <div className="grid items-start gap-5 lg:grid-cols-[360px_1fr]">
+        <Card className="app-panel hidden lg:block">
           <CardHeader>
             <CardTitle>Create product</CardTitle>
             <CardDescription>Products can be reused for payment requests.</CardDescription>
@@ -74,7 +74,7 @@ export function ProductsPageContent({ products }: ProductsPageContentProps) {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="app-panel">
           <CardHeader>
             <CardTitle>Catalog</CardTitle>
             <CardDescription>Only your merchant profile can manage these rows.</CardDescription>
