@@ -156,7 +156,7 @@ create index if not exists receipts_merchant_created_idx on public.receipts(merc
 grant usage on schema public to anon, authenticated;
 grant select, insert, update, delete on public.merchants to authenticated;
 grant select, insert, update, delete on public.products to authenticated;
-grant select, insert, update, delete on public.payment_requests to authenticated;
+grant select, insert on public.payment_requests to authenticated;
 grant select on public.transactions to authenticated;
 grant select on public.receipts to authenticated;
 grant select on public.merchants to anon;

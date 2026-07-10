@@ -1,5 +1,7 @@
 # Project ZERO — MVP Roadmap (4-Dev Parallel Plan)
 
+> **Note:** The "Current state vs MVP" table below reflects a pre-implementation snapshot (2026-01). For the live route audit, functional status, and acceptance criteria, see [`docs/design.md`](./design.md).
+
 Aligned to `docs/whitepaper.md`. MVP sentence: *merchant creates an invoice → generates a QR code and payment link → customer reviews the invoice in their wallet → authorizes the payment → Stellar settles → merchant dashboard automatically marks the invoice as paid.*
 
 Goal of this doc: 4 devs work in parallel with minimal merge conflict. Each dev owns a **track** = a vertical slice of files. Shared seams are pinned contracts (types, SQL fn signatures, API shapes) defined up front in §Shared Contracts.

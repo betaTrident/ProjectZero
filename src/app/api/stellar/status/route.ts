@@ -1,8 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { createClient } from "@/lib/supabase/server";
+import { getClientFingerprint, isRateLimited } from "@/lib/http/request-rate-limit";
 
-const rateMap = new Map<string, number>();
 const RATE_LIMIT_MS = 2_000;
 
 export async function GET(request: NextRequest) {
@@ -13,15 +13,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "missing id" }, { status: 400 });
   }
 
-  const now = Date.now();
-  pruneRateMap(now);
-
-  const rateLimitKey = `${paymentRequestId}:${getClientFingerprint(request)}`;
-  const lastRequest = rateMap.get(rateLimitKey) ?? 0;
-  if (now - lastRequest < RATE_LIMIT_MS) {
+  const rateLimitKey = `status:${paymentRequestId}:${getClientFingerprint(request)}`;
+  if (isRateLimited(rateLimitKey, RATE_LIMIT_MS)) {
     return NextResponse.json({ error: "rate limited" }, { status: 429 });
   }
-  rateMap.set(rateLimitKey, now);
 
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -40,17 +35,4 @@ export async function GET(request: NextRequest) {
     paid_at: data.paid_at,
     paidAt: data.paid_at,
   });
-}
-
-function pruneRateMap(now: number) {
-  for (const [rateLimitKey, lastRequest] of rateMap.entries()) {
-    if (now - lastRequest >= RATE_LIMIT_MS) {
-      rateMap.delete(rateLimitKey);
-    }
-  }
-}
-
-function getClientFingerprint(request: NextRequest) {
-  const forwardedFor = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
-  return forwardedFor || request.headers.get("x-real-ip") || "local";
 }

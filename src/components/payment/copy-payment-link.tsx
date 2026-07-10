@@ -19,9 +19,14 @@ export function CopyPaymentLink({ paymentLink }: CopyPaymentLinkProps) {
   }
 
   return (
-    <Button type="button" variant="outline" onClick={copyLink}>
-      <Copy aria-hidden="true" />
-      {copied ? "Copied" : "Copy link"}
-    </Button>
+    <>
+      <span aria-live="polite" className="sr-only">
+        {copied ? "Payment link copied to clipboard" : ""}
+      </span>
+      <Button type="button" variant="outline" onClick={copyLink} aria-label="Copy payment link">
+        <Copy aria-hidden="true" />
+        {copied ? "Copied" : "Copy link"}
+      </Button>
+    </>
   );
 }

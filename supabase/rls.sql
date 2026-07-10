@@ -79,11 +79,19 @@ using (public.current_user_owns_merchant(products.merchant_id))
 with check (public.current_user_owns_merchant(products.merchant_id));
 
 drop policy if exists "payment_requests_crud_own" on public.payment_requests;
-create policy "payment_requests_crud_own"
+drop policy if exists "payment_requests_select_own" on public.payment_requests;
+drop policy if exists "payment_requests_insert_own" on public.payment_requests;
+
+create policy "payment_requests_select_own"
 on public.payment_requests
-for all
+for select
 to authenticated
-using (public.current_user_owns_merchant(payment_requests.merchant_id))
+using (public.current_user_owns_merchant(payment_requests.merchant_id));
+
+create policy "payment_requests_insert_own"
+on public.payment_requests
+for insert
+to authenticated
 with check (public.current_user_owns_merchant(payment_requests.merchant_id));
 
 drop policy if exists "transactions_select_own" on public.transactions;
@@ -118,4 +126,4 @@ using (
 );
 
 -- No anon insert/update/delete policies exist. Payment status changes are reserved
--- for server-side service-role verification in Phase 3.
+-- for server-side service-role verification via mark_payment_paid.

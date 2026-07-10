@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 
+import { getClientFingerprint, isRateLimited } from "@/lib/http/request-rate-limit";
 import { verifyPaymentByHash } from "@/lib/stellar/verify-payment";
 import { getServiceClient } from "@/lib/supabase/service";
 
@@ -9,12 +10,19 @@ const verifySchema = z.object({
   stellarTxHash: z.string().regex(/^[a-fA-F0-9]{64}$/),
 });
 
+const RATE_LIMIT_MS = 2_000;
+
 export async function POST(request: NextRequest) {
   const body: unknown = await request.json().catch(() => null);
   const parsed = verifySchema.safeParse(body);
 
   if (!parsed.success) {
     return NextResponse.json({ ok: false, reason: "invalid request" }, { status: 400 });
+  }
+
+  const rateLimitKey = `verify:${parsed.data.paymentRequestId}:${getClientFingerprint(request)}`;
+  if (isRateLimited(rateLimitKey, RATE_LIMIT_MS)) {
+    return NextResponse.json({ ok: false, reason: "rate limited" }, { status: 429 });
   }
 
   const supabase = getServiceClient();

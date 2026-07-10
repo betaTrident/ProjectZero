@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/shared/status-badge";
 import type { PaymentRequestStatus } from "@/types/payment";
 
 type PaymentStatusBadgeProps = {
@@ -55,5 +55,5 @@ export function PaymentStatusBadge({
     };
   }, [paymentRequestId, pollMs, router, status]);
 
-  return <Badge variant={status === "paid" ? "default" : "secondary"}>{status}</Badge>;
+  return <StatusBadge status={status} />;
 }

@@ -1,5 +1,4 @@
 import {
-  Account,
   Asset,
   BASE_FEE,
   Memo,
@@ -7,7 +6,10 @@ import {
   TransactionBuilder,
 } from "@stellar/stellar-sdk";
 
+import { getStellarServer } from "./client";
+
 export type PaymentParams = {
+  sourcePublicKey: string;
   destination: string;
   amount: string;
   assetCode: string;
@@ -18,21 +20,25 @@ export type PaymentParams = {
 
 /**
  * Builds an unsigned XDR transaction ready for Freighter `signTransaction`.
+ * Source must be the customer wallet; sequence is loaded from Horizon.
  * Asset: pass assetCode="XLM" and assetIssuer=null for native lumens.
  *        pass assetCode="USDC" and assetIssuer=<issuer G-key> for credit assets.
  * Memo: treated as a public correlation key; do not include private data.
  */
-export function buildPaymentXDR(params: PaymentParams): string {
-  const { destination, amount, assetCode, assetIssuer, memo, networkPassphrase } = params;
+export async function buildPaymentXDR(params: PaymentParams): Promise<string> {
+  const { sourcePublicKey, destination, amount, assetCode, assetIssuer, memo, networkPassphrase } =
+    params;
   if (memo.length > 28) {
     throw new Error(`Memo exceeds 28-character MEMO_TEXT limit: ${memo.length} characters`);
   }
 
+  const server = getStellarServer();
+  const sourceAccount = await server.loadAccount(sourcePublicKey);
+
   const asset =
     assetCode === "XLM" ? Asset.native() : new Asset(assetCode, requireAssetIssuer(assetIssuer));
-  const source = new Account(destination, "0");
 
-  const tx = new TransactionBuilder(source, {
+  const tx = new TransactionBuilder(sourceAccount, {
     fee: BASE_FEE,
     networkPassphrase,
   })
@@ -51,7 +57,9 @@ export function buildPaymentXDR(params: PaymentParams): string {
 }
 
 // Returns a SEP-7 web+stellar: URI for non-Freighter wallet deeplinks.
-export function buildSep7Uri(params: PaymentParams & { payLink: string }): string {
+export function buildSep7Uri(
+  params: Omit<PaymentParams, "sourcePublicKey"> & { payLink: string },
+): string {
   const { destination, amount, assetCode, assetIssuer, memo, networkPassphrase, payLink } = params;
   const url = new URL("web+stellar:pay");
 

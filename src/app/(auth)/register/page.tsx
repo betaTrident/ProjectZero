@@ -1,11 +1,16 @@
-import Link from "next/link";
+import type { Metadata } from "next";
 
 import { register } from "@/actions/auth";
+import { AuthShell, AuthShellLink } from "@/components/forms/auth-shell";
+import { SubmitButton } from "@/components/forms/submit-button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+
+export const metadata: Metadata = {
+  title: "Create account",
+  description: "Create a merchant account to issue Stellar Testnet payment requests.",
+};
 
 type RegisterPageProps = {
   searchParams: Promise<{
@@ -17,50 +22,44 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
   const { error } = await searchParams;
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-background px-6 py-10">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Create merchant account</CardTitle>
-          <CardDescription>Start issuing Stellar Testnet payment requests.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form action={register} className="space-y-4">
-            {error ? (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            ) : null}
-            <div className="space-y-2">
-              <Label htmlFor="businessName">Business name</Label>
-              <Input id="businessName" name="businessName" minLength={2} required />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" name="email" type="email" autoComplete="email" required />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                minLength={6}
-                required
-              />
-            </div>
-            <Button type="submit" className="w-full">
-              Register
-            </Button>
-          </form>
-          <p className="mt-4 text-center text-sm text-muted-foreground">
-            Already registered?{" "}
-            <Link href="/login" className="text-primary hover:underline">
-              Login
-            </Link>
-          </p>
-        </CardContent>
-      </Card>
-    </main>
+    <AuthShell
+      title="Create account"
+      description="Start issuing Stellar Testnet payment requests."
+      footer={
+        <>
+          Already registered? <AuthShellLink href="/login">Sign in</AuthShellLink>
+        </>
+      }
+    >
+      <form action={register} className="flex flex-col gap-4">
+        {error ? (
+          <Alert variant="destructive">
+            <AlertDescription>{decodeURIComponent(error)}</AlertDescription>
+          </Alert>
+        ) : null}
+        <FieldGroup>
+          <Field>
+            <FieldLabel htmlFor="businessName">Business name</FieldLabel>
+            <Input id="businessName" name="businessName" autoComplete="organization" minLength={2} required />
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="email">Email</FieldLabel>
+            <Input id="email" name="email" type="email" autoComplete="email" required />
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="password">Password</FieldLabel>
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              autoComplete="new-password"
+              minLength={6}
+              required
+            />
+          </Field>
+        </FieldGroup>
+        <SubmitButton idleLabel="Create account" pendingLabel="Creating account…" />
+      </form>
+    </AuthShell>
   );
 }

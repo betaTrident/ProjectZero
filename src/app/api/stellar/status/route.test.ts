@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 
+import { resetRateLimitStoreForTests } from "@/lib/http/request-rate-limit";
+
 const single = vi.fn();
 
 vi.mock("@/lib/supabase/server", () => ({
@@ -23,6 +25,7 @@ function statusRequest(id: string, ip = "203.0.113.10") {
 
 describe("GET /api/stellar/status", () => {
   beforeEach(() => {
+    resetRateLimitStoreForTests();
     single.mockResolvedValue({
       data: {
         id: "request-1",

@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(5);
+select plan(6);
 
 insert into auth.users (id, email, role, aud)
 values
@@ -131,6 +131,21 @@ select is(
   ),
   1,
   'expiry job predicate selects stale pending invoices'
+);
+
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000002', true);
+select set_config('request.jwt.claim.role', 'authenticated', true);
+
+select throws_ok(
+  $$
+    update public.payment_requests
+    set status = 'paid', paid_at = now()
+    where id = '20000000-0000-4000-8000-000000000002'
+  $$,
+  '42501',
+  null,
+  'merchants cannot mark their own invoices paid via direct update'
 );
 
 select * from finish();
