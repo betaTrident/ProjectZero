@@ -27,11 +27,11 @@ export function RecentPaymentsList({ transactions }: RecentPaymentsListProps) {
   }
 
   return (
-    <ul className="flex flex-col gap-3">
+    <ul className="flex flex-col divide-y divide-border/60">
       {transactions.map((transaction) => (
         <li
           key={transaction.id}
-          className="flex flex-col gap-1 rounded-lg border border-border/60 p-3 sm:flex-row sm:items-center sm:justify-between"
+          className="flex items-center justify-between gap-3 py-4 first:pt-0 last:pb-0"
         >
           <div>
             <p className="font-mono text-sm">

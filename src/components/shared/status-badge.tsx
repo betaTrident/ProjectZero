@@ -8,9 +8,9 @@ type StatusBadgeProps = {
 };
 
 const statusClassName: Record<PaymentRequestStatus, string> = {
-  pending: "border-warning/40 bg-warning/15 text-warning-foreground",
-  paid: "border-success/40 bg-success text-success-foreground",
-  expired: "bg-secondary text-secondary-foreground",
+  pending: "border-warning/40 bg-warning/12 text-warning",
+  paid: "border-success/40 bg-success/12 text-success",
+  expired: "border-destructive/35 bg-destructive/10 text-destructive",
   cancelled: "border-border bg-transparent text-muted-foreground",
 };
 

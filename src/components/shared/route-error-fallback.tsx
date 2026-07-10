@@ -19,20 +19,20 @@ export function RouteErrorFallback({
   description = "We could not load this page. Try again or return later.",
 }: RouteErrorFallbackProps) {
   return (
-    <main className="mx-auto flex w-full max-w-lg flex-col items-center px-4 py-16 md:px-6">
-      <Alert variant="destructive" className="w-full">
+    <main className="app-surface flex min-h-[70vh] w-full items-center justify-center px-4 py-16 md:px-6">
+      <div className="w-full max-w-lg">
+      <Alert variant="destructive" className="app-panel w-full border-destructive/35 p-4">
         <AlertCircle />
         <AlertTitle>{title}</AlertTitle>
         <AlertDescription className="flex flex-col gap-4">
           <span>{description}</span>
-          {error.message ? (
-            <span className="font-mono text-xs text-destructive/80">{error.message}</span>
-          ) : null}
+          {error.digest ? <span className="font-mono text-xs text-destructive/80">Reference: {error.digest}</span> : null}
         </AlertDescription>
       </Alert>
-      <Button type="button" onClick={reset} className="mt-6">
+      <Button type="button" onClick={reset} className="mt-6 w-full" size="lg">
         Try again
       </Button>
+      </div>
     </main>
   );
 }

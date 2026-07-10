@@ -37,12 +37,12 @@ export function CreateInvoiceForm({
     <form action={createPaymentRequest} className="flex flex-col gap-4">
       <FieldGroup>
         <Field>
-          <FieldLabel htmlFor={fieldId(idPrefix, "title")}>Title</FieldLabel>
-          <Input id={fieldId(idPrefix, "title")} name="title" required />
+          <FieldLabel htmlFor={fieldId(idPrefix, "title")}>Invoice title</FieldLabel>
+          <Input id={fieldId(idPrefix, "title")} name="title" placeholder="e.g. Custom order" required />
         </Field>
         <Field>
-          <FieldLabel htmlFor={fieldId(idPrefix, "description")}>Description</FieldLabel>
-          <Textarea id={fieldId(idPrefix, "description")} name="description" />
+          <FieldLabel htmlFor={fieldId(idPrefix, "description")}>Description (optional)</FieldLabel>
+          <Textarea id={fieldId(idPrefix, "description")} name="description" placeholder="What is this payment for?" />
         </Field>
         <div className="grid grid-cols-2 gap-3">
           <Field>
@@ -69,7 +69,7 @@ export function CreateInvoiceForm({
           </Field>
         </div>
         <Field>
-          <FieldLabel htmlFor={fieldId(idPrefix, "productId")}>Product</FieldLabel>
+          <FieldLabel htmlFor={fieldId(idPrefix, "productId")}>Product (optional)</FieldLabel>
           <NativeSelect
             id={fieldId(idPrefix, "productId")}
             name="productId"
@@ -100,7 +100,7 @@ export function CreateInvoiceForm({
         disabled={!hasDestination}
       />
       {!hasDestination ? (
-        <p className="text-xs text-muted-foreground">
+        <p className="rounded-lg border border-warning/25 bg-warning/8 p-3 text-xs text-muted-foreground">
           Add a merchant Stellar public key before creating invoices.
         </p>
       ) : null}

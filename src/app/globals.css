@@ -75,23 +75,23 @@
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
+  --background: oklch(0.105 0.012 205);
+  --foreground: oklch(0.965 0.006 180);
+  --card: oklch(0.14 0.014 205);
+  --card-foreground: oklch(0.965 0.006 180);
+  --popover: oklch(0.13 0.014 205);
+  --popover-foreground: oklch(0.965 0.006 180);
   --primary: oklch(0.72 0.19 150);
   --primary-foreground: oklch(0.145 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.31 0.04 190);
-  --accent-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.18 0.014 205);
+  --secondary-foreground: oklch(0.94 0.006 180);
+  --muted: oklch(0.18 0.014 205);
+  --muted-foreground: oklch(0.7 0.015 190);
+  --accent: oklch(0.2 0.025 175);
+  --accent-foreground: oklch(0.965 0.006 180);
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
+  --border: oklch(1 0 0 / 11%);
+  --input: oklch(1 0 0 / 14%);
   --ring: oklch(0.72 0.19 150);
   --success: oklch(0.72 0.19 150);
   --success-foreground: oklch(0.145 0 0);
@@ -99,10 +99,10 @@
   --warning-foreground: oklch(0.985 0 0);
   --info: oklch(0.7 0.12 200);
   --info-foreground: oklch(0.145 0 0);
-  --sidebar: oklch(0.18 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar: oklch(0.115 0.014 205);
+  --sidebar-foreground: oklch(0.965 0.006 180);
   --sidebar-border: oklch(1 0 0 / 8%);
-  --sidebar-accent: oklch(0.25 0.02 150);
+  --sidebar-accent: oklch(0.18 0.022 175);
   --marketing-primary-glow: oklch(0.72 0.19 150 / 28%);
   --marketing-qr-background: oklch(0.985 0 0);
 }
@@ -140,6 +140,29 @@ body {
   box-shadow:
     inset 0 1px 0 oklch(1 0 0 / 4%),
     0 20px 60px oklch(0 0 0 / 24%);
+}
+
+.app-surface {
+  min-height: 100vh;
+  background-color: var(--background);
+  background-image:
+    radial-gradient(circle at 82% 0%, oklch(0.62 0.19 150 / 5%), transparent 24rem),
+    linear-gradient(to bottom, oklch(0.13 0.015 205 / 28%), transparent 24rem);
+}
+
+.app-panel {
+  background:
+    linear-gradient(145deg, oklch(0.17 0.016 205 / 90%), oklch(0.12 0.012 205 / 96%));
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 3%),
+    0 18px 48px oklch(0 0 0 / 16%);
+}
+
+.app-surface [data-slot="input"],
+.app-surface [data-slot="native-select"],
+.app-surface [data-slot="textarea"] {
+  min-height: 2.5rem;
+  background-color: oklch(0.105 0.012 205 / 54%);
 }
 
 .marketing-hero-glow {

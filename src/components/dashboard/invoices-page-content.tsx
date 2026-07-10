@@ -49,7 +49,7 @@ export function InvoicesPageContent({
   const [sheetOpen, setSheetOpen] = useState(false);
 
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8 md:px-6">
+    <main className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
       <QueryFeedback />
       <PageHeader
         title="Invoices"
@@ -59,13 +59,13 @@ export function InvoicesPageContent({
             <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
               <SheetTrigger
                 render={
-                  <Button type="button" disabled={!hasDestination}>
+                  <Button type="button" size="lg" disabled={!hasDestination}>
                     <Plus data-icon="inline-start" />
                     New invoice
                   </Button>
                 }
               />
-              <SheetContent side="bottom" className="max-h-[90dvh] overflow-y-auto">
+              <SheetContent side="bottom" className="max-h-[92dvh] overflow-y-auto rounded-t-2xl border-border bg-popover">
                 <SheetHeader>
                   <SheetTitle>Create invoice</SheetTitle>
                 </SheetHeader>
@@ -83,8 +83,8 @@ export function InvoicesPageContent({
         }
       />
 
-      <div className="grid gap-6 lg:grid-cols-[380px_1fr]">
-        <Card className="hidden lg:block">
+      <div className="grid items-start gap-5 lg:grid-cols-[380px_1fr]">
+        <Card className="app-panel hidden lg:block">
           <CardHeader>
             <CardTitle>Create invoice</CardTitle>
             <CardDescription>Generate a QR code and shareable payment link.</CardDescription>
@@ -99,7 +99,7 @@ export function InvoicesPageContent({
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="app-panel">
           <CardHeader>
             <CardTitle>All invoices</CardTitle>
             <CardDescription>Pending, paid, and expired payment requests.</CardDescription>
