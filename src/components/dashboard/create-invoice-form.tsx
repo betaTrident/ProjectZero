@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 import { createPaymentRequest } from "@/actions/payment-requests";
 import { SubmitButton } from "@/components/forms/submit-button";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -33,6 +35,8 @@ export function CreateInvoiceForm({
   defaultExpiresAt = defaultExpiresAtLocal(),
   idPrefix,
 }: CreateInvoiceFormProps) {
+  const [expiresAt, setExpiresAt] = useState(defaultExpiresAt);
+
   return (
     <form action={createPaymentRequest} className="flex flex-col gap-4">
       <FieldGroup>
@@ -61,7 +65,7 @@ export function CreateInvoiceForm({
             <input type="hidden" name="assetCode" value="XLM" />
             <Input
               id={fieldId(idPrefix, "assetCode")}
-              value="XLM"
+              defaultValue="XLM"
               readOnly
               disabled
               className="bg-muted"
@@ -90,7 +94,8 @@ export function CreateInvoiceForm({
             id={fieldId(idPrefix, "expiresAt")}
             name="expiresAt"
             type="datetime-local"
-            defaultValue={defaultExpiresAt}
+            value={expiresAt}
+            onValueChange={setExpiresAt}
           />
         </Field>
       </FieldGroup>
