@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 
 import { NextResponse } from "next/server";
 
-import { createPaymentMemo } from "@/lib/payments/payment-request";
+import { createPaymentMemo, resolvePaymentDestination } from "@/lib/payments/payment-request";
 import { createClient } from "@/lib/supabase/server";
 import { paymentRequestSchema } from "@/lib/validation/payment-request.schema";
 
@@ -18,7 +18,7 @@ async function getAuthenticatedMerchant() {
 
   const { data: merchant } = await supabase
     .from("merchants")
-    .select("id")
+    .select("id, stellar_public_key")
     .eq("user_id", user.id)
     .single();
 
@@ -68,6 +68,16 @@ export async function POST(request: Request) {
   }
 
   const id = randomUUID();
+  let stellarDestination: string;
+  try {
+    stellarDestination = resolvePaymentDestination(
+      merchant.stellar_public_key,
+      process.env.PROJECT_ZERO_TREASURY_PUBLIC_KEY,
+    );
+  } catch {
+    return NextResponse.json({ error: "Merchant Stellar destination is not configured" }, { status: 409 });
+  }
+
   const { data, error } = await supabase
     .from("payment_requests")
     .insert({
@@ -78,7 +88,8 @@ export async function POST(request: Request) {
       description: parsed.data.description ?? null,
       amount: parsed.data.amount,
       asset_code: parsed.data.assetCode,
-      stellar_destination: parsed.data.stellarDestination,
+      asset_issuer: parsed.data.assetCode === "XLM" ? null : (parsed.data.assetIssuer ?? null),
+      stellar_destination: stellarDestination,
       memo: createPaymentMemo(id),
       expires_at: parsed.data.expiresAt ?? null,
     })

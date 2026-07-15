@@ -85,6 +85,7 @@ export type Database = {
           description: string | null;
           amount: number;
           asset_code: string;
+          asset_issuer: string | null;
           status: "pending" | "paid" | "expired" | "cancelled";
           stellar_destination: string;
           memo: string;
@@ -101,6 +102,7 @@ export type Database = {
           description?: string | null;
           amount: number;
           asset_code?: string;
+          asset_issuer?: string | null;
           status?: "pending" | "paid" | "expired" | "cancelled";
           stellar_destination: string;
           memo: string;
@@ -115,6 +117,7 @@ export type Database = {
           description?: string | null;
           amount?: number;
           asset_code?: string;
+          asset_issuer?: string | null;
           status?: "pending" | "paid" | "expired" | "cancelled";
           stellar_destination?: string;
           memo?: string;
@@ -133,6 +136,7 @@ export type Database = {
           destination_wallet: string | null;
           amount: number | null;
           asset_code: string | null;
+          asset_issuer: string | null;
           verified_at: string;
           raw_payload: Json | null;
           created_at: string;
@@ -146,6 +150,7 @@ export type Database = {
           destination_wallet?: string | null;
           amount?: number | null;
           asset_code?: string | null;
+          asset_issuer?: string | null;
           verified_at?: string;
           raw_payload?: Json | null;
           created_at?: string;
@@ -169,7 +174,16 @@ export type Database = {
       >;
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      mark_payment_paid: {
+        Args: {
+          p_request_id: string;
+          p_tx_hash: string;
+          p_payload?: Json;
+        };
+        Returns: Database["public"]["Tables"]["payment_requests"]["Row"];
+      };
+    };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };

@@ -1,62 +1,63 @@
-import Link from "next/link";
+import type { Metadata } from "next";
 
 import { login } from "@/actions/auth";
+import { AuthShell, AuthShellLink } from "@/components/forms/auth-shell";
+import { SubmitButton } from "@/components/forms/submit-button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+
+export const metadata: Metadata = {
+  title: "Sign in",
+  description: "Sign in to manage invoices, products, and payment history.",
+};
 
 type LoginPageProps = {
   searchParams: Promise<{
     error?: string;
+    next?: string;
   }>;
 };
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
-  const { error } = await searchParams;
+  const { error, next } = await searchParams;
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-background px-6 py-10">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Merchant login</CardTitle>
-          <CardDescription>Access invoices, products, and payment history.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form action={login} className="space-y-4">
-            {error ? (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            ) : null}
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" name="email" type="email" autoComplete="email" required />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                minLength={6}
-                required
-              />
-            </div>
-            <Button type="submit" className="w-full">
-              Login
-            </Button>
-          </form>
-          <p className="mt-4 text-center text-sm text-muted-foreground">
-            New merchant?{" "}
-            <Link href="/register" className="text-primary hover:underline">
-              Create an account
-            </Link>
-          </p>
-        </CardContent>
-      </Card>
-    </main>
+    <AuthShell
+      title="Sign in"
+      description="Access invoices, products, and payment history."
+      footer={
+        <>
+          New merchant? <AuthShellLink href="/register">Create an account</AuthShellLink>
+        </>
+      }
+    >
+      <form action={login} className="flex flex-col gap-4">
+        <input type="hidden" name="next" value={next ?? ""} />
+        {error ? (
+          <Alert variant="destructive">
+            <AlertDescription>{decodeURIComponent(error)}</AlertDescription>
+          </Alert>
+        ) : null}
+        <FieldGroup>
+          <Field>
+            <FieldLabel htmlFor="email">Email</FieldLabel>
+            <Input id="email" name="email" type="email" autoComplete="email" required />
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="password">Password</FieldLabel>
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              minLength={6}
+              required
+            />
+          </Field>
+        </FieldGroup>
+        <SubmitButton idleLabel="Sign in" pendingLabel="Signing in…" />
+      </form>
+    </AuthShell>
   );
 }

@@ -1552,7 +1552,7 @@ git commit -m "test(actions): createPaymentRequest destination binding + memo en
 - Modify: `src/lib/stellar/verify-payment.ts`
 - Modify: `src/lib/stellar/build-payment.ts`
 
-- [ ] **Step 1: Handle missing payment operation in tx**
+- [x] **Step 1: Handle missing payment operation in tx**
 
 ```typescript
 // In verifyPaymentByHash, before accessing paymentOp:
@@ -1561,7 +1561,7 @@ if (!paymentOp) {
 }
 ```
 
-- [ ] **Step 2: Handle memo length limit**
+- [x] **Step 2: Handle memo length limit**
 
 In `buildPaymentXDR`, add guard:
 
@@ -1571,7 +1571,7 @@ if (memo.length > 28) {
 }
 ```
 
-- [ ] **Step 3: Document native vs credit asset handling**
+- [x] **Step 3: Document native vs credit asset handling**
 
 Add inline JSDoc to `buildPaymentXDR`:
 
@@ -1584,7 +1584,7 @@ Add inline JSDoc to `buildPaymentXDR`:
  */
 ```
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/lib/stellar/verify-payment.ts src/lib/stellar/build-payment.ts
@@ -1603,7 +1603,7 @@ git commit -m "fix(stellar): edge cases — missing payment op, memo length guar
 - Modify: `src/components/payment/payment-request-card.tsx`
 - Modify: `src/components/payment/payment-page-placeholder.tsx`
 
-- [ ] **Step 1: Detect Freighter absence**
+- [x] **Step 1: Detect Freighter absence**
 
 ```typescript
 import { isConnected } from '@stellar/freighter-api'
@@ -1615,7 +1615,7 @@ useEffect(() => {
 }, [])
 ```
 
-- [ ] **Step 2: Show SEP-7 QR when Freighter is absent**
+- [x] **Step 2: Show SEP-7 QR when Freighter is absent**
 
 ```typescript
 import { buildSep7Uri } from '@/lib/stellar/build-payment'
@@ -1640,7 +1640,7 @@ import QRCode from 'react-qr-code'
 )}
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/components/payment/payment-request-card.tsx src/components/payment/payment-page-placeholder.tsx
@@ -1658,7 +1658,7 @@ git commit -m "feat(wallet): SEP-7 deeplink QR fallback for non-Freighter wallet
 **Files:**
 - Create: `supabase/migrations/20260706_expire_pending.sql`
 
-- [ ] **Step 1: Write expiry migration**
+- [x] **Step 1: Write expiry migration**
 
 ```sql
 -- supabase/migrations/20260706_expire_pending.sql
@@ -1675,13 +1675,13 @@ SELECT cron.schedule(
 );
 ```
 
-- [ ] **Step 2: Apply migration**
+- [x] **Step 2: Apply migration**
 
 ```bash
 supabase db push
 ```
 
-- [ ] **Step 3: Rate-limit `/api/stellar/status`**
+- [x] **Step 3: Rate-limit `/api/stellar/status`**
 
 Add in-memory rate limit using `Map` (upgrade to edge KV if needed later):
 
@@ -1704,7 +1704,7 @@ export async function GET(req: NextRequest) {
 }
 ```
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add supabase/migrations/20260706_expire_pending.sql src/app/api/stellar/status/route.ts
@@ -1722,7 +1722,7 @@ git commit -m "feat(backend): pg_cron invoice expiry; rate-limit status endpoint
 **Files:**
 - Create: `src/lib/payments/payment-request.test.ts` (extend existing)
 
-- [ ] **Step 1: Add settlement tests**
+- [x] **Step 1: Add settlement tests**
 
 ```typescript
 describe('mark_payment_paid behavior', () => {
@@ -1738,13 +1738,13 @@ describe('mark_payment_paid behavior', () => {
 })
 ```
 
-- [ ] **Step 2: Run and confirm green**
+- [x] **Step 2: Run and confirm green**
 
 ```bash
 npx vitest run src/lib/payments/payment-request.test.ts
 ```
 
-- [ ] **Step 3: Write RLS test**
+- [x] **Step 3: Write RLS test**
 
 ```sql
 -- supabase/tests/rls.test.sql
@@ -1755,7 +1755,7 @@ SET LOCAL role = anon;
 ROLLBACK;
 ```
 
-- [ ] **Step 4: Write expiry test**
+- [x] **Step 4: Write expiry test**
 
 ```typescript
 describe('invoice expiry', () => {
@@ -1767,7 +1767,7 @@ describe('invoice expiry', () => {
 })
 ```
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/payments/payment-request.test.ts supabase/tests/rls.test.sql
@@ -1778,11 +1778,11 @@ git commit -m "test: settle, RLS cross-merchant block, and expiry tests"
 
 ### Phase 3 Merge Gate (M4)
 
-- [ ] CI covers verify/auth/settle/RLS (all tests green, `npm run lint && npm test`)
-- [ ] Stale pending invoices with past `expires_at` transition to `expired` via pg_cron
-- [ ] Dashboard reflects `expired` status within one poll interval
-- [ ] SEP-7 QR displays when Freighter is not installed
-- [ ] Security review completed: run `security-review` skill on uncommitted changes
+- [x] CI covers verify/auth/settle/RLS (all tests green, `npm run lint && npm test`)
+- [x] Stale pending invoices with past `expires_at` transition to `expired` via pg_cron
+- [x] Dashboard reflects `expired` status within one poll interval
+- [x] SEP-7 QR displays when Freighter is not installed
+- [x] Security review completed: run `security-review` skill on uncommitted changes
 
 ---
 

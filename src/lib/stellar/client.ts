@@ -4,7 +4,7 @@ import { STELLAR_TESTNET_HORIZON_URL } from "@/constants/stellar";
 
 let server: Horizon.Server | null = null;
 
-export function getStellarServer() {
+export function getStellarServer(): Horizon.Server {
   server ??= new Horizon.Server(
     process.env.STELLAR_HORIZON_URL ?? STELLAR_TESTNET_HORIZON_URL,
   );

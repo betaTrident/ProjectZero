@@ -31,7 +31,10 @@ export async function login(formData: FormData) {
     redirectWithError("/login", error.message);
   }
 
-  redirect("/dashboard");
+  const next = formValue(formData, "next");
+  const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/dashboard";
+
+  redirect(safeNext);
 }
 
 export async function register(formData: FormData) {

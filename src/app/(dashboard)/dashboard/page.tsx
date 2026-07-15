@@ -1,13 +1,28 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+import { CircleCheckBig, Clock3, Package, Plus, TimerOff } from "lucide-react";
+import { Suspense } from "react";
 
 import { MerchantOnboardingForm } from "@/components/dashboard/merchant-onboarding-form";
-import { Badge } from "@/components/ui/badge";
+import { RecentPaymentsList } from "@/components/dashboard/recent-payments-list";
+import { RecentRequestsList } from "@/components/dashboard/recent-requests-list";
+import { PageHeader } from "@/components/layout/page-header";
+import { QueryFeedback } from "@/components/shared/query-feedback";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { buildPaymentLink } from "@/lib/payments/payment-request";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Dashboard",
+};
+
+function startOfMonth() {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+}
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -23,7 +38,10 @@ export default async function DashboardPage() {
 
   if (!merchant) {
     return (
-      <main className="mx-auto w-full max-w-6xl px-6 py-8">
+      <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+        <Suspense fallback={null}>
+          <QueryFeedback />
+        </Suspense>
         <MerchantOnboardingForm
           defaultBusinessName={
             typeof user?.user_metadata.business_name === "string"
@@ -35,14 +53,43 @@ export default async function DashboardPage() {
     );
   }
 
-  const [{ data: requests }, { data: products }, { data: transactions }] = await Promise.all([
+  const monthStart = startOfMonth();
+
+  const [
+    { count: pendingCount },
+    { count: paidCount },
+    { count: expiredCount },
+    { count: productCount },
+    { data: requests },
+    { data: transactions },
+  ] = await Promise.all([
+    supabase
+      .from("payment_requests")
+      .select("*", { count: "exact", head: true })
+      .eq("merchant_id", merchant.id)
+      .eq("status", "pending"),
+    supabase
+      .from("payment_requests")
+      .select("*", { count: "exact", head: true })
+      .eq("merchant_id", merchant.id)
+      .eq("status", "paid"),
+    supabase
+      .from("payment_requests")
+      .select("*", { count: "exact", head: true })
+      .eq("merchant_id", merchant.id)
+      .eq("status", "expired")
+      .gte("updated_at", monthStart),
+    supabase
+      .from("products")
+      .select("*", { count: "exact", head: true })
+      .eq("merchant_id", merchant.id)
+      .eq("is_active", true),
     supabase
       .from("payment_requests")
       .select("*")
       .eq("merchant_id", merchant.id)
       .order("created_at", { ascending: false })
       .limit(5),
-    supabase.from("products").select("*").eq("merchant_id", merchant.id).limit(5),
     supabase
       .from("transactions")
       .select("*")
@@ -51,92 +98,78 @@ export default async function DashboardPage() {
       .limit(5),
   ]);
 
-  const pendingCount = requests?.filter((request) => request.status === "pending").length ?? 0;
-  const paidCount = requests?.filter((request) => request.status === "paid").length ?? 0;
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
-  return (
-    <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-8">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="text-sm text-muted-foreground">Welcome back</p>
-          <h1 className="text-2xl font-semibold tracking-tight">{merchant.business_name}</h1>
-        </div>
-        <Link href="/invoices" className={buttonVariants()}>
-          Create invoice
-        </Link>
-      </div>
+  const recentRequests =
+    requests?.map((request) => ({
+      id: request.id,
+      title: request.title,
+      amount: request.amount,
+      asset_code: request.asset_code,
+      status: request.status,
+      paymentLink: buildPaymentLink(appUrl, request.id),
+    })) ?? [];
 
-      <section className="grid gap-4 md:grid-cols-3">
-        <Card>
+  return (
+    <main className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+      <Suspense fallback={null}>
+        <QueryFeedback />
+      </Suspense>
+
+      <PageHeader
+        title={`Welcome back, ${merchant.business_name}`}
+        description="Track invoices, share payment links, and monitor verified settlements."
+        action={
+          <Link href="/invoices" className={buttonVariants({ size: "lg" })}>
+            <Plus data-icon="inline-start" /> Create invoice
+          </Link>
+        }
+      />
+
+      <section className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
+        <Card className="app-panel gap-0 py-0">
           <CardHeader>
-            <CardDescription>Pending requests</CardDescription>
-            <CardTitle className="text-3xl">{pendingCount}</CardTitle>
+            <div className="flex items-center justify-between"><CardDescription>Pending requests</CardDescription><Clock3 className="size-4 text-warning" /></div>
+            <CardTitle className="font-mono text-3xl">{pendingCount ?? 0}</CardTitle>
           </CardHeader>
         </Card>
-        <Card>
+        <Card className="app-panel gap-0 py-0">
           <CardHeader>
-            <CardDescription>Paid requests</CardDescription>
-            <CardTitle className="text-3xl">{paidCount}</CardTitle>
+            <div className="flex items-center justify-between"><CardDescription>Paid requests</CardDescription><CircleCheckBig className="size-4 text-primary" /></div>
+            <CardTitle className="font-mono text-3xl">{paidCount ?? 0}</CardTitle>
           </CardHeader>
         </Card>
-        <Card>
+        <Card className="app-panel gap-0 py-0">
           <CardHeader>
-            <CardDescription>Products</CardDescription>
-            <CardTitle className="text-3xl">{products?.length ?? 0}</CardTitle>
+            <div className="flex items-center justify-between"><CardDescription>Expired this month</CardDescription><TimerOff className="size-4 text-destructive" /></div>
+            <CardTitle className="font-mono text-3xl">{expiredCount ?? 0}</CardTitle>
+          </CardHeader>
+        </Card>
+        <Card className="app-panel gap-0 py-0">
+          <CardHeader>
+            <div className="flex items-center justify-between"><CardDescription>Active products</CardDescription><Package className="size-4 text-primary" /></div>
+            <CardTitle className="font-mono text-3xl">{productCount ?? 0}</CardTitle>
           </CardHeader>
         </Card>
       </section>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent payment requests</CardTitle>
-          <CardDescription>Share links are public, but status updates remain server-only.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {requests?.length ? (
-            requests.map((request) => (
-              <div
-                key={request.id}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border p-3"
-              >
-                <div>
-                  <p className="font-medium">{request.title}</p>
-                  <p className="font-mono text-xs text-muted-foreground">
-                    {buildPaymentLink(appUrl, request.id)}
-                  </p>
-                </div>
-                <Badge variant={request.status === "paid" ? "default" : "secondary"}>
-                  {request.status}
-                </Badge>
-              </div>
-            ))
-          ) : (
-            <p className="text-sm text-muted-foreground">No payment requests yet.</p>
-          )}
-        </CardContent>
-      </Card>
+      <section className="grid gap-4 xl:grid-cols-[1.25fr_0.75fr]">
+        <Card className="app-panel">
+          <CardHeader>
+            <CardTitle>Recent payment requests</CardTitle>
+            <CardDescription>Share links publicly; status updates remain server-verified.</CardDescription>
+          </CardHeader>
+          <CardContent><RecentRequestsList requests={recentRequests} /></CardContent>
+        </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent payments</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {transactions?.length ? (
-            <div className="space-y-2">
-              {transactions.map((transaction) => (
-                <p key={transaction.id} className="break-all font-mono text-sm">
-                  {transaction.stellar_tx_hash}
-                </p>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              Verified Stellar transactions appear here in Phase 3.
-            </p>
-          )}
-        </CardContent>
-      </Card>
+        <Card className="app-panel">
+          <CardHeader>
+            <CardTitle>Recent verified payments</CardTitle>
+            <CardDescription>On-chain settlements matched to your invoices.</CardDescription>
+          </CardHeader>
+          <CardContent><RecentPaymentsList transactions={transactions ?? []} /></CardContent>
+        </Card>
+      </section>
     </main>
   );
 }
