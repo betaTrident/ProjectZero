@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FileText, LayoutDashboard, LogOut, Menu, Package, WalletCards } from "lucide-react";
+import { FileText, LayoutDashboard, LogOut, Menu, WalletCards } from "lucide-react";
 import { useState } from "react";
 
 import { logout } from "@/actions/auth";
@@ -15,7 +15,6 @@ import { cn } from "@/lib/utils";
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/invoices", label: "Invoices", icon: FileText },
-  { href: "/products", label: "Products", icon: Package },
   { href: "/payments", label: "Payments", icon: WalletCards },
 ] as const;
 

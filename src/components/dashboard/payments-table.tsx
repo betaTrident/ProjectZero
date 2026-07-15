@@ -26,9 +26,18 @@ type PaymentRow = {
 
 type PaymentsTableProps = {
   transactions: PaymentRow[];
+  presentationMode?: boolean;
 };
 
-export function PaymentsTable({ transactions }: PaymentsTableProps) {
+function TransactionReference({ hash, presentationMode }: { hash: string; presentationMode: boolean }) {
+  if (presentationMode) {
+    return <span className="font-mono text-xs text-muted-foreground">{truncateStellarHash(hash)}</span>;
+  }
+
+  return <ExplorerLink hash={hash} />;
+}
+
+export function PaymentsTable({ transactions, presentationMode = false }: PaymentsTableProps) {
   if (!transactions.length) {
     return (
       <EmptyState
@@ -54,7 +63,7 @@ export function PaymentsTable({ transactions }: PaymentsTableProps) {
               <span className="rounded-full border border-primary/25 bg-primary/10 px-2 py-1 text-xs text-primary">Verified</span>
             </div>
             <div className="mt-4 grid gap-2 border-t border-border/60 pt-3 text-xs">
-              <div className="flex items-center justify-between gap-3"><span className="text-muted-foreground">Transaction</span><ExplorerLink hash={transaction.stellar_tx_hash} /></div>
+              <div className="flex items-center justify-between gap-3"><span className="text-muted-foreground">Transaction</span><TransactionReference hash={transaction.stellar_tx_hash} presentationMode={presentationMode} /></div>
               <div className="flex items-center justify-between gap-3"><span className="text-muted-foreground">Source wallet</span><span className="font-mono text-muted-foreground">{transaction.source_wallet ? truncateStellarHash(transaction.source_wallet) : "Unknown"}</span></div>
             </div>
           </article>
@@ -83,7 +92,7 @@ export function PaymentsTable({ transactions }: PaymentsTableProps) {
               </TableCell>
               <TableCell>{transaction.asset_code ?? "XLM"}</TableCell>
               <TableCell>
-                <ExplorerLink hash={transaction.stellar_tx_hash} />
+                <TransactionReference hash={transaction.stellar_tx_hash} presentationMode={presentationMode} />
               </TableCell>
               <TableCell className="font-mono text-xs text-muted-foreground">
                 {transaction.source_wallet

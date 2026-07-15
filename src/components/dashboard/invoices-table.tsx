@@ -32,6 +32,7 @@ type InvoiceRow = {
 
 type InvoicesTableProps = {
   invoices: InvoiceRow[];
+  presentationMode?: boolean;
 };
 
 function formatExpiresAt(expiresAt: string | null) {
@@ -42,7 +43,7 @@ function formatExpiresAt(expiresAt: string | null) {
   return new Date(expiresAt).toLocaleString();
 }
 
-export function InvoicesTable({ invoices }: InvoicesTableProps) {
+export function InvoicesTable({ invoices, presentationMode = false }: InvoicesTableProps) {
   const [qrState, setQrState] = useState<{ open: boolean; link: string; title: string }>({
     open: false,
     link: "",
@@ -66,7 +67,7 @@ export function InvoicesTable({ invoices }: InvoicesTableProps) {
           <article key={invoice.id} className="rounded-xl border border-border/70 bg-background/35 p-4">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0"><h3 className="truncate font-medium">{invoice.title}</h3><p className="mt-1 truncate font-mono text-[0.65rem] text-muted-foreground">{invoice.id}</p></div>
-              <PaymentStatusBadge paymentRequestId={invoice.id} initialStatus={invoice.status} />
+              <PaymentStatusBadge paymentRequestId={invoice.id} initialStatus={invoice.status} pollingDisabled={presentationMode} />
             </div>
             <div className="mt-4 flex items-end justify-between gap-3">
               <div><p className="font-mono text-lg font-semibold">{Number(invoice.amount).toFixed(2)} {invoice.asset_code}</p><p className="mt-1 text-xs text-muted-foreground">Expires {formatExpiresAt(invoice.expires_at)}</p></div>
@@ -99,7 +100,7 @@ export function InvoicesTable({ invoices }: InvoicesTableProps) {
                   {Number(invoice.amount).toFixed(2)} {invoice.asset_code}
                 </TableCell>
                 <TableCell>
-                  <PaymentStatusBadge paymentRequestId={invoice.id} initialStatus={invoice.status} />
+                  <PaymentStatusBadge paymentRequestId={invoice.id} initialStatus={invoice.status} pollingDisabled={presentationMode} />
                 </TableCell>
                 <TableCell className="text-muted-foreground">
                   {formatExpiresAt(invoice.expires_at)}

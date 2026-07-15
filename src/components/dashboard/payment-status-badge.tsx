@@ -10,18 +10,20 @@ type PaymentStatusBadgeProps = {
   paymentRequestId: string;
   initialStatus: PaymentRequestStatus;
   pollMs?: number;
+  pollingDisabled?: boolean;
 };
 
 export function PaymentStatusBadge({
   paymentRequestId,
   initialStatus,
   pollMs = 5000,
+  pollingDisabled = false,
 }: PaymentStatusBadgeProps) {
   const router = useRouter();
   const [status, setStatus] = useState(initialStatus);
 
   useEffect(() => {
-    if (status !== "pending") {
+    if (pollingDisabled || status !== "pending") {
       return;
     }
 
@@ -53,7 +55,7 @@ export function PaymentStatusBadge({
       controller.abort();
       window.clearInterval(interval);
     };
-  }, [paymentRequestId, pollMs, router, status]);
+  }, [paymentRequestId, pollMs, pollingDisabled, router, status]);
 
   return <StatusBadge status={status} />;
 }

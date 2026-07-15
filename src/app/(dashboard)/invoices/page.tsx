@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import { InvoicesPageContent } from "@/components/dashboard/invoices-page-content";
 import { defaultExpiresAtLocal } from "@/lib/format/datetime-local";
 import { buildPaymentLink } from "@/lib/payments/payment-request";
+import { getPresentationInvoices } from "@/lib/presentation/mock-data";
+import { isPresentationMode } from "@/lib/presentation/mode";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -12,6 +14,7 @@ export const metadata: Metadata = {
 };
 
 export default async function InvoicesPage() {
+  const presentationMode = isPresentationMode();
   const supabase = await createClient();
   const {
     data: { user },
@@ -43,16 +46,17 @@ export default async function InvoicesPage() {
     merchant?.stellar_public_key ?? process.env.PROJECT_ZERO_TREASURY_PUBLIC_KEY,
   );
 
-  const invoices =
-    requests?.map((request) => ({
-      id: request.id,
-      title: request.title,
-      amount: request.amount,
-      asset_code: request.asset_code,
-      status: request.status,
-      expires_at: request.expires_at,
-      paymentLink: buildPaymentLink(appUrl, request.id),
-    })) ?? [];
+  const invoices = presentationMode
+    ? getPresentationInvoices(appUrl)
+    : requests?.map((request) => ({
+        id: request.id,
+        title: request.title,
+        amount: request.amount,
+        asset_code: request.asset_code,
+        status: request.status,
+        expires_at: request.expires_at,
+        paymentLink: buildPaymentLink(appUrl, request.id),
+      })) ?? [];
 
   return (
     <InvoicesPageContent
@@ -60,6 +64,7 @@ export default async function InvoicesPage() {
       hasDestination={hasDestination}
       invoices={invoices}
       defaultExpiresAt={defaultExpiresAtLocal()}
+      presentationMode={presentationMode}
     />
   );
 }

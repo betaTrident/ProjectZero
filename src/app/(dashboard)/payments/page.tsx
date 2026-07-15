@@ -7,6 +7,8 @@ import { PageHeader } from "@/components/layout/page-header";
 import { QueryFeedback } from "@/components/shared/query-feedback";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { getPresentationPayments } from "@/lib/presentation/mock-data";
+import { isPresentationMode } from "@/lib/presentation/mode";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -16,6 +18,7 @@ export const metadata: Metadata = {
 };
 
 export default async function PaymentsPage() {
+  const presentationMode = isPresentationMode();
   const supabase = await createClient();
   const {
     data: { user },
@@ -33,7 +36,7 @@ export default async function PaymentsPage() {
         .order("created_at", { ascending: false })
     : { data: [] };
 
-  const rows = transactions ?? [];
+  const rows = presentationMode ? getPresentationPayments() : transactions ?? [];
   const monthStart = new Date();
   monthStart.setDate(1);
   monthStart.setHours(0, 0, 0, 0);
@@ -50,7 +53,12 @@ export default async function PaymentsPage() {
       <PageHeader
         title="Payments"
         description="Verified Stellar transactions linked to your invoices."
-        action={<Badge variant="outline" className="border-info/30 bg-info/10 text-info"><Radio /> Stellar Testnet</Badge>}
+        action={
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            {presentationMode ? <Badge variant="outline">Presentation data</Badge> : null}
+            <Badge variant="outline" className="border-info/30 bg-info/10 text-info"><Radio /> Stellar Testnet</Badge>
+          </div>
+        }
       />
 
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -66,7 +74,7 @@ export default async function PaymentsPage() {
           <CardDescription>Settlements appear here after on-chain verification succeeds.</CardDescription>
         </CardHeader>
         <CardContent>
-          <PaymentsTable transactions={rows} />
+          <PaymentsTable transactions={rows} presentationMode={presentationMode} />
         </CardContent>
       </Card>
     </main>
