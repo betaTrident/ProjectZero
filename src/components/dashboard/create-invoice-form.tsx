@@ -95,7 +95,7 @@ export function CreateInvoiceForm({
             name="expiresAt"
             type="datetime-local"
             value={expiresAt}
-            onValueChange={setExpiresAt}
+            onChange={(event) => setExpiresAt(event.target.value)}
           />
         </Field>
       </FieldGroup>
