@@ -1,4 +1,4 @@
-# Project ZERO — UX/UI Design Specification
+# Project ZERO — UX/UI Design Specifications
 
 > **Status:** Approved for implementation  
 > **Audience:** Product, design, and Composer 2.5 executor agents  
