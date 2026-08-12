@@ -1,4 +1,4 @@
-# Project ZERO
+# Project ZERO's
 
 ## Detailed Whitepaper Draft
 
