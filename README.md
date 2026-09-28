@@ -55,7 +55,7 @@ npm run build
 3. Apply migrations under `supabase/migrations/` (or run `supabase/schema.sql` then `supabase/rls.sql` for a fresh project).
 4. If your project has “Tables not exposed to Data API automatically” enabled, the schema already includes explicit grants for `anon` and `authenticated` roles plus RLS policies.
 
-## Current Flows
+## Current Flow
 
 - Register at `/register`.
 - Login at `/login` (honors `?next=` for post-auth redirect).
